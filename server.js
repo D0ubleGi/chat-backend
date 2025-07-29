@@ -5,8 +5,8 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);  
 const allowedOrigins = [
-  'http://10.195.233.10:4200',     
-  'https://haiaa.wuaze.com'        
+  'https://haiaa.wuaze.com',           
+  'https://chat-backend-mk6h.onrender.com'  
 ];
 
 app.use(cors({
