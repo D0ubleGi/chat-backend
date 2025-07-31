@@ -21,7 +21,9 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
     credentials: true
   },
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  pingTimeout: 200000,    
+  pingInterval: 30000
 });
 
 
@@ -30,6 +32,7 @@ const users = {};
 const userp = {};
 const usere = {};
 const usir = {};
+const usss={};
 let map2 = new Map();
 
 io.on('connection', (socket) => {
@@ -49,6 +52,13 @@ io.on('connection', (socket) => {
     }
   });
 
+ const { name } = socket.handshake.auth;
+  
+  if (usss[name]) {
+    console.log(`[Debug] Duplicate login detected for: ${name}`);
+    socket.emit('disc');
+  }
+
   socket.on('setname', (name, passwor) => {
     console.log(`[Debug] setname from ${socket.id}: ${name}`);
     if (userp[name] || usere[name]) {
@@ -56,8 +66,10 @@ io.on('connection', (socket) => {
         if (userp[name] === passwor) {
           if (validemail(name)) {
             userMap[socket.id] = usir[name];
+            usss[usir[name]]=usir[name];
           } else {
             userMap[socket.id] = name;
+            usss[usir[name]]=name;
           }
           if (validemail(name)) {
             const nai = usir[name];
@@ -81,7 +93,7 @@ io.on('connection', (socket) => {
       }
     } else {
       const err = "errori";
-      socket.emit('return', err, socket.id);
+      socket.emit('return', err, passwor);
     }
   });
 
@@ -107,13 +119,18 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log(`[Debug] User disconnected: ${socket.id} (${userMap[socket.id]})`);
+      console.log(`[Debug] User disconnected: ${socket.id} (${userMap[socket.id]})`);
     delete userMap[socket.id];
-    io.emit('ret', userMap);
+    io.emit('ret', userMap); 
   });
 
   socket.on('users', () => {
     io.emit('ret', userMap);
+  });
+
+  socket.on('img',(image)=>{
+    io.emit('imgs',image);
+    console.log(image);
   });
 
 });
@@ -130,6 +147,8 @@ function validemail(ema) {
   return regex.test(ema);
 }
 
-server.listen(3000, () => {
-  console.log('✅ Server running on http://localhost:3000');
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
