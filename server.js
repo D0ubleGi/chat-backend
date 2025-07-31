@@ -38,6 +38,14 @@ let map2 = new Map();
 io.on('connection', (socket) => {
   console.log('[Debug] New user connected:', socket.id);
 
+  io.on('connection', (socket) => {
+  const forwarded = socket.handshake.headers['x-forwarded-for'];
+  const ip = forwarded
+    ? forwarded.split(',')[0].trim()
+    : socket.handshake.address || socket.conn.remoteAddress;
+
+  console.log('User real IP:', ip);
+});
   socket.on('register', (usi, ema, pasi) => {
     if (userp[usi] || usere[ema]) {
       const err = 'already';
