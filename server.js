@@ -31,6 +31,7 @@ const userMap = {};
 const users = {};
 const userp = {};
 let chunks = {};
+const imageChunks = {};
 const usere = {};
 const usir = {};
 const usss={};
@@ -138,14 +139,16 @@ io.on('connection', (socket) => {
     io.emit('ret', userMap);
   });
 
-   socket.on('img', (data) => {
-    if (!chunks[socket.id]) chunks[socket.id] = '';
-    chunks[socket.id] += data.chunk;
+    socket.on('img', ({ id, index, total, data }) => {
+    if (!imageChunks[id]) imageChunks[id] = [];
+    imageChunks[id][index] = data;
 
-    if (data.last) {
-      const useri = userMap[socket.id];
-      io.emit('imgs', useri, chunks[socket.id]);
-      chunks[socket.id] = '';
+    if (imageChunks[id].filter(Boolean).length === total) {
+      const fullImage = imageChunks[id].join('');
+      delete imageChunks[id];
+
+      const user = userMap[socket.id];
+      io.emit('imgs', user, fullImage);
     }
   });
 
