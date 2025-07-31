@@ -129,8 +129,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('img',(image)=>{
-    io.emit('imgs',image);
-    console.log(image);
+    const useri=userMap[socket.id];
+    io.emit('imgs',useri,image);
   });
 
 });
