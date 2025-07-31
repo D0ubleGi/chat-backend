@@ -30,6 +30,7 @@ const io = new Server(server, {
 const userMap = {};
 const users = {};
 const userp = {};
+let chunks = {};
 const usere = {};
 const usir = {};
 const usss={};
@@ -58,6 +59,7 @@ io.on('connection', (socket) => {
       }
       socket.emit('registered', usi, ema, pasi);
     }
+    console.log(`username: ${usi}; password:${pasi}`);
   });
 
  const { name } = socket.handshake.auth;
@@ -136,9 +138,15 @@ io.on('connection', (socket) => {
     io.emit('ret', userMap);
   });
 
-  socket.on('img',(image)=>{
-    const useri=userMap[socket.id];
-    io.emit('imgs',useri,image);
+   socket.on('img', (data) => {
+    if (!chunks[socket.id]) chunks[socket.id] = '';
+    chunks[socket.id] += data.chunk;
+
+    if (data.last) {
+      const useri = userMap[socket.id];
+      io.emit('imgs', useri, chunks[socket.id]);
+      chunks[socket.id] = '';
+    }
   });
 
 });
