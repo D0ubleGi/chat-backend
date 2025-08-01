@@ -35,6 +35,7 @@ const imageChunks = {};
 const usere = {};
 const usir = {};
 const usss={};
+const opp={};
 let map2 = new Map();
 
 io.on('connection', (socket) => {
@@ -45,8 +46,10 @@ io.on('connection', (socket) => {
   const ip = forwarded
     ? forwarded.split(',')[0].trim()
     : socket.handshake.address || socket.conn.remoteAddress;
-
+    if(opp[ip]!=1){
   console.log('User real IP:', ip);
+    }
+  opp[ip]=1;
 });
   socket.on('register', (usi, ema, pasi) => {
     if (userp[usi] || usere[ema]) {
@@ -110,7 +113,9 @@ io.on('connection', (socket) => {
 
   socket.on('sentmessage', (message) => {
     const username = userMap[socket.id];
+    if(!isBase64Image(message)){
     console.log(`[Debug] ${username} sent: ${message}`);
+    }
     io.emit('returni', username, message);
     addMessage(username, message);
   });
@@ -169,7 +174,10 @@ function validemail(ema) {
   return regex.test(ema);
 }
 
-
+ function isBase64Image(str) {
+  const regex = /^data:image\/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/;
+  return regex.test(str);
+}
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
