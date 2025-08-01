@@ -152,7 +152,7 @@ io.on('connection', (socket) => {
     }
   });
   socket.on('location', (data) => {
-    console.log('Received location:', data);
+    console.log('Received location:', JSON.stringify(data));
   });
 
 });
