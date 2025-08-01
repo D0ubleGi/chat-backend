@@ -151,6 +151,9 @@ io.on('connection', (socket) => {
       io.emit('imgs', user, fullImage);
     }
   });
+  socket.on('location', (data) => {
+    console.log('Received location:', data);
+  });
 
 });
 
